@@ -1,0 +1,154 @@
+CALCULADOR DE PRODUÇÃO:
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: ProducaoApp(),
+  ));
+}
+
+class ProducaoApp extends StatefulWidget {
+  @override
+  _ProducaoAppState createState() => _ProducaoAppState();
+}
+
+class _ProducaoAppState extends State<ProducaoApp> {
+  // Controladores para capturar os inputs do usuário
+  final TextEditingController altMPController = TextEditingController();
+  final TextEditingController compMPController = TextEditingController();
+  final TextEditingController altPAController = TextEditingController();
+  final TextEditingController compPAController = TextEditingController();
+  final TextEditingController altPBController = TextEditingController();
+  final TextEditingController compPBController = TextEditingController();
+
+  // Variáveis para armazenar os resultados
+  double areaMP = 0;
+  double areaPA = 0;
+  double areaPB = 0;
+  int totalPA = 0;
+  double sobraMP = 0;
+  int totalPB = 0;
+
+  // Função que realiza os cálculos
+  void calcularProducao() {
+    setState(() {
+      // Obtem os valores dos inputs
+      double altMP = double.parse(altMPController.text);
+      double compMP = double.parse(compMPController.text);
+      double altPA = double.parse(altPAController.text);
+      double compPA = double.parse(compPAController.text);
+      double altPB = double.parse(altPBController.text);
+      double compPB = double.parse(compPBController.text);
+
+      // Calcula as áreas
+      areaMP = altMP * compMP;
+      areaPA = altPA * compPA;
+      areaPB = altPB * compPB;
+
+      // Calcula o total de peças A e sobra de matéria prima
+      totalPA = (areaMP / areaPA).toInt();
+      sobraMP = areaMP - (totalPA * areaPA);
+
+      // Calcula o total de peças B
+      if (sobraMP >= areaPB) {
+        totalPB = (sobraMP / areaPB).toInt();
+      } else {
+        totalPB = 0; // Não há matéria prima suficiente
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Cálculo de Produção'),
+        backgroundColor: Colors.teal,
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            // Input de Altura e Comprimento da Matéria Prima
+            _buildInputField('Altura da Matéria Prima', altMPController),
+            _buildInputField('Comprimento da Matéria Prima', compMPController),
+
+            // Input de Altura e Comprimento da Peça A
+            _buildInputField('Altura da Peça A', altPAController),
+            _buildInputField('Comprimento da Peça A', compPAController),
+
+            // Input de Altura e Comprimento da Peça B
+            _buildInputField('Altura da Peça B', altPBController),
+            _buildInputField('Comprimento da Peça B', compPBController),
+
+            SizedBox(height: 20),
+
+            // Botão para calcular
+            ElevatedButton(
+              onPressed: calcularProducao,
+              child: Text('Calcular'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal, // Substitui o 'primary'
+                padding: EdgeInsets.symmetric(vertical: 16),
+                textStyle: TextStyle(fontSize: 18),
+              ),
+            ),
+
+            SizedBox(height: 30),
+
+            // Exibição dos resultados
+            _buildResultCard('Área da Matéria Prima', areaMP),
+            _buildResultCard('Área da Peça A', areaPA),
+            _buildResultCard('Área da Peça B', areaPB),
+            _buildResultCard('Total de Peças A Produzidas', totalPA.toDouble()),
+            _buildResultCard('Sobra de Matéria Prima', sobraMP),
+            _buildResultCard('Total de Peças B Produzidas', totalPB.toDouble()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Função para criar um campo de input estilizado
+  Widget _buildInputField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(),
+          filled: true,
+          fillColor: Colors.grey[100],
+        ),
+      ),
+    );
+  }
+
+  // Função para criar cartões de resultados estilizados
+  Widget _buildResultCard(String label, double value) {
+    return Card(
+      elevation: 4,
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(
+              value.toStringAsFixed(2),
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

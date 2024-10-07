@@ -1,0 +1,145 @@
+  //CALCULAR O IMC: 
+import 'package:flutter/material.dart';
+
+class Pessoa {
+  late double altura;
+  late double peso;
+
+  // Construtor para inicializar a altura e o peso
+  Pessoa(this.altura, this.peso);
+
+  // Calcula o IMC
+  double calcularIMC() {
+    return peso / (altura * altura);
+  }
+
+  // Retorna a análise do IMC
+  String obterAnaliseIMC() {
+    double imc = calcularIMC();
+    if (imc < 18.5) {
+      return "Abaixo do peso";
+    } else if (imc >= 18.5 && imc < 24.9) {
+      return "Peso normal";
+    } else if (imc >= 25 && imc < 29.9) {
+      return "Sobrepeso";
+    } else {
+      return "Obesidade";
+    }
+  }
+}
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: IMCCalculator(),
+    );
+  }
+}
+
+class IMCCalculator extends StatefulWidget {
+  @override
+  _IMCCalculatorState createState() => _IMCCalculatorState();
+}
+
+class _IMCCalculatorState extends State<IMCCalculator> {
+  final _formKey = GlobalKey<FormState>();
+  double altura = 0;
+  double peso = 0;
+  String resultado = '';
+
+  void calcularIMC() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      Pessoa pessoa = Pessoa(altura, peso);
+      double imc = pessoa.calcularIMC();
+      String analise = pessoa.obterAnaliseIMC();
+      setState(() {
+        resultado = "Altura: ${altura.toStringAsFixed(2)} m\n"
+                   "Peso: ${peso.toStringAsFixed(1)} kg\n"
+                   "IMC: ${imc.toStringAsFixed(2)}\n"
+                   "Análise: $analise";
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Calculadora de IMC'),
+        backgroundColor: Colors.green[500],
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Altura (em metros)',
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.green[180],
+                    ),
+                    keyboardType: TextInputType.number,
+                    onSaved: (value) => altura = double.tryParse(value ?? '') ?? 0,
+                    validator: (value) => value!.isEmpty ? 'Campo obrigatório' : null,
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Peso (em kg)',
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.green[180],
+                    ),
+                    keyboardType: TextInputType.number,
+                    onSaved: (value) => peso = double.tryParse(value ?? '') ?? 0,
+                    validator: (value) => value!.isEmpty ? 'Campo obrigatório' : null,
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: calcularIMC,
+                    child: Text('Calcular IMC'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green [300],
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            if (resultado.isNotEmpty)
+              Card(
+                color: Colors.grey[300],
+                margin: EdgeInsets.symmetric(vertical: 8.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    resultado,
+                    style: TextStyle(color: Colors.green[400], fontSize: 18),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
